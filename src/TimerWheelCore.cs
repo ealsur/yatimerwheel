@@ -7,7 +7,7 @@ using System.Threading;
 [assembly: InternalsVisibleTo("TimerWheelTests")]
 namespace TimerWheel
 {
-    public class TimerWheelCore : TimerWheel, IDisposable
+    internal class TimerWheelCore : TimerWheel, IDisposable
     {
         private readonly ConcurrentDictionary<int, ConcurrentQueue<TimerWheelTimer>> timers;
         private readonly int resolutionInTicks;
@@ -114,7 +114,7 @@ namespace TimerWheel
             }
         }
 
-        internal void OnTimer(Object stateInfo)
+        public void OnTimer(Object stateInfo)
         {
             lock (this.timerConcurrencyLock)
             {
