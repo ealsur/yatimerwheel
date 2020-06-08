@@ -9,14 +9,16 @@ namespace TimerWheelPerformance
     [MemoryDiagnoser]
     public class TimerWheelBenchmark
     {
+        private readonly TimerWheel.TimerWheel mainWheel;
         private readonly IReadOnlyList<int> timeouts;
         public TimerWheelBenchmark()
         {
             this.timeouts = TimerUtilities.GenerateTimeoutList(10000, 1000, 50);
+            this.mainWheel = TimerWheel.TimerWheel.CreateTimerWheel(50, 20);
         }
 
         [Benchmark]
-        public async Task WithTimerWheel()
+        public async Task TenK_WithTimerWheel()
         {
             TimerWheel.TimerWheel wheel = TimerWheel.TimerWheel.CreateTimerWheel(50, 20);
             List<Task> timers = new List<Task>(this.timeouts.Count);
@@ -31,7 +33,7 @@ namespace TimerWheelPerformance
         }
 
         [Benchmark]
-        public async Task WithNormalTimers()
+        public async Task TenK_WithNormalTimers()
         {
             List<Task> timers = new List<Task>(this.timeouts.Count);
             List<WorkerWithTimer> workers = new List<WorkerWithTimer>(this.timeouts.Count);
@@ -47,6 +49,22 @@ namespace TimerWheelPerformance
                 item.Dispose();
             }
         }
+
+        [Benchmark]
+        public void One_WithTimerWheel()
+        {
+            TimerWheel.TimerWheelTimer timer = this.mainWheel.GetTimer(50);
+            timer.StartTimerAsync();
+        }
+
+        [Benchmark]
+        public void One_WithNormalTimers()
+        {
+            Timer timer = new Timer(this.DoNothing, null, 50, 50);
+            timer.Dispose();
+        }
+
+        public void DoNothing(Object state){}
 
         public class WorkerWithTimer: IDisposable
         {
