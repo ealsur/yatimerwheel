@@ -16,8 +16,8 @@ namespace TimerWheelPerformance
         {
             public Config()
             {
-                AddJob(Job.MediumRun.WithGcServer(true).WithGcForce(false).WithId("Server"));
-                AddJob(Job.MediumRun.WithGcServer(false).WithGcForce(true).WithId("Workstation"));
+                this.AddJob(Job.MediumRun.WithGcServer(true).WithGcForce(false).WithId("Server"));
+                this.AddJob(Job.MediumRun.WithGcServer(false).WithGcForce(true).WithId("Workstation"));
             }
         }
 

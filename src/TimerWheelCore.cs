@@ -161,7 +161,7 @@ namespace TimerWheel
             int index = bucket + this.expirationIndex;
             if (index > this.buckets)
             {
-                index -= buckets;
+                index -= this.buckets;
             }
 
             return index - 1; // zero based
