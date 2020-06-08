@@ -25,7 +25,7 @@ The `TimerWheel` instance is disposable and should be disposed after it has been
 
 ## Tests
 
-The repo includes the [unit tests](./tests) associated with the project.
+The repo includes the [unit tests](./test) associated with the project.
 
 ## Benchmark
 
