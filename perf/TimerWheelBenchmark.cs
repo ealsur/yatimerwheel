@@ -3,12 +3,24 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Jobs;
 
 namespace TimerWheelPerformance
 {
+    [Config(typeof(Config))]
     [MemoryDiagnoser]
     public class TimerWheelBenchmark
     {
+        private class Config : ManualConfig
+        {
+            public Config()
+            {
+                AddJob(Job.MediumRun.WithGcServer(true).WithGcForce(false).WithId("Server"));
+                AddJob(Job.MediumRun.WithGcServer(false).WithGcForce(true).WithId("Workstation"));
+            }
+        }
+
         private readonly TimerWheel.TimerWheel mainWheel;
         private readonly IReadOnlyList<int> timeouts;
         public TimerWheelBenchmark()
