@@ -7,7 +7,6 @@ namespace TimerWheelPerformance
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<NormalTimerBenchmark>();
             BenchmarkRunner.Run<TimerWheelBenchmark>();
         }
     }
