@@ -51,17 +51,17 @@ namespace TimerWheelPerformance
         }
 
         [Benchmark]
-        public void One_WithTimerWheel()
+        public async Task One_WithTimerWheel()
         {
             TimerWheel.TimerWheelTimer timer = this.mainWheel.GetTimer(50);
-            timer.StartTimerAsync();
+            await timer.StartTimerAsync();
         }
 
         [Benchmark]
-        public void One_WithNormalTimers()
+        public async Task One_WithNormalTimers()
         {
-            Timer timer = new Timer(this.DoNothing, null, 50, 50);
-            timer.Dispose();
+            WorkerWithTimer timer = new WorkerWithTimer(50);
+            await timer.StartTimerAsync();
         }
 
         public void DoNothing(Object state){}
