@@ -25,10 +25,10 @@ The `TimerWheel` instance is disposable and should be disposed after it has been
 
 ## Tests
 
-The repo includes the [unit tests](.\tests) associated with the project.
+The repo includes the [unit tests](./tests) associated with the project.
 
 ## Benchmark
 
-The repo includes [BenchmarkDotNet benchmarks](.\perf) that compare the performance of the wheel versus using `System.Threading.Timer` directly.
+The repo includes [BenchmarkDotNet benchmarks](./perf) that compare the performance of the wheel versus using `System.Threading.Timer` directly.
 
-![Benchmark results](.\img\perfresults)
+![Benchmark results](./img/perfresults.png)
