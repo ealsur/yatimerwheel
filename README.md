@@ -9,13 +9,13 @@ This repo contains an implementation of a Simple Timer Wheel as defined by [http
 Creation of the wheel requires the *resolution* of each wheel's bucket and the amount of *buckets*, which define which is the *MaxInterval*.
 
 ```csharp
-TimerWheel wheel = TimerWheel.CreateTimerWheel(resolutionInMs: 50, buckets: 20);
+TimerWheel wheel = TimerWheel.CreateTimerWheel(resolution: TimeSpan.FromMilliseconds(50), buckets: 20);
 ```
 
 Once a wheel is created, new timers can be requested by specifying the *timeout in milliseconds* for that particular timer. Then, a call to `StartTimerAsync` will return a `Task` that resolves once the timeout is up:
 
 ```csharp
-TimerWheelTimer timer = wheel.GetTimer(timeoutInMs:50);
+TimerWheelTimer timer = wheel.CreateTimer(timeout:TimeSpan.FromMilliseconds(100));
 await timer.StartTimerAsync();
 ```
 
