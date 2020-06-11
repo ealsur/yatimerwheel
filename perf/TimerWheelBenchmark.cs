@@ -13,6 +13,7 @@ namespace TimerWheelPerformance
     [MemoryDiagnoser]
     public class TimerWheelBenchmark
     {
+        private static TimeSpan resolution = TimeSpan.FromMilliseconds(50);
         private class Config : ManualConfig
         {
             public Config()
@@ -26,13 +27,13 @@ namespace TimerWheelPerformance
         public TimerWheelBenchmark()
         {
             this.timeouts = TimerUtilities.GenerateTimeoutList(10000, 1000, 50);
-            this.mainWheel = TimerWheel.CreateTimerWheel(TimeSpan.FromMilliseconds(50), 20);
+            this.mainWheel = TimerWheel.CreateTimerWheel(TimerWheelBenchmark.resolution, 20);
         }
 
         [Benchmark]
         public async Task TenK_WithTimerWheel()
         {
-            TimerWheel wheel = TimerWheel.CreateTimerWheel(TimeSpan.FromMilliseconds(50), 20);
+            TimerWheel wheel = TimerWheel.CreateTimerWheel(TimerWheelBenchmark.resolution, 20);
             List<Task> timers = new List<Task>(this.timeouts.Count);
             for (int i = 0; i < this.timeouts.Count; i++)
             {
@@ -65,7 +66,7 @@ namespace TimerWheelPerformance
         [Benchmark]
         public async Task One_WithTimerWheel()
         {
-            TimerWheelTimer timer = this.mainWheel.CreateTimer(TimeSpan.FromMilliseconds(50));
+            TimerWheelTimer timer = this.mainWheel.CreateTimer(TimerWheelBenchmark.resolution);
             await timer.StartTimerAsync();
         }
 
