@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("TimerWheelTests")]
-namespace TimerWheel
+namespace SimpleTimerWheel
 {
     internal sealed class TimerWheelTimerCore : TimerWheelTimer
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using TimerWheel;
+using SimpleTimerWheel;
 
 namespace TimerWheelTests
 {
@@ -14,7 +14,7 @@ namespace TimerWheelTests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TimeSpanZero()
         {
-            TimerWheelTimerCore timer = new TimerWheelTimerCore(TimeSpan.Zero, Mock.Of<TimerWheel.TimerWheel>());
+            TimerWheelTimerCore timer = new TimerWheelTimerCore(TimeSpan.Zero, Mock.Of<TimerWheel>());
         }
 
         [TestMethod]
@@ -28,14 +28,14 @@ namespace TimerWheelTests
         public void TimeoutMatchesInput()
         {
             TimeSpan timeout = TimeSpan.FromMilliseconds(1);
-            TimerWheelTimerCore timer = new TimerWheelTimerCore(timeout, Mock.Of<TimerWheel.TimerWheel>());
+            TimerWheelTimerCore timer = new TimerWheelTimerCore(timeout, Mock.Of<TimerWheel>());
             Assert.AreEqual(timeout, timer.Timeout);
         }
 
         [TestMethod]
         public void SubscribesToWheel()
         {
-            Mock<TimerWheel.TimerWheel> mockedWheel = new Mock<TimerWheel.TimerWheel>();
+            Mock<TimerWheel> mockedWheel = new Mock<TimerWheel>();
             TimerWheelTimerCore timer = new TimerWheelTimerCore(TimeSpan.FromMilliseconds(10), mockedWheel.Object);
             Task task = timer.StartTimerAsync();
             Mock.Get(mockedWheel.Object)
@@ -46,7 +46,7 @@ namespace TimerWheelTests
         [ExpectedException(typeof(InvalidOperationException))]
         public async Task CannotStartTwice()
         {
-            Mock<TimerWheel.TimerWheel> mockedWheel = new Mock<TimerWheel.TimerWheel>();
+            Mock<TimerWheel> mockedWheel = new Mock<TimerWheel>();
             TimerWheelTimerCore timer = new TimerWheelTimerCore(TimeSpan.FromMilliseconds(10), mockedWheel.Object);
             List<Task> tasks = new List<Task>()
             {
@@ -60,7 +60,7 @@ namespace TimerWheelTests
         [TestMethod]
         public void FireTimeout()
         {
-            Mock<TimerWheel.TimerWheel> mockedWheel = new Mock<TimerWheel.TimerWheel>();
+            Mock<TimerWheel> mockedWheel = new Mock<TimerWheel>();
             TimerWheelTimerCore timer = new TimerWheelTimerCore(TimeSpan.FromMilliseconds(10), mockedWheel.Object);
             Task task = timer.StartTimerAsync();
             Assert.AreEqual(TaskStatus.WaitingForActivation, task.Status);
@@ -71,7 +71,7 @@ namespace TimerWheelTests
         [TestMethod]
         public void Cancel()
         {
-            Mock<TimerWheel.TimerWheel> mockedWheel = new Mock<TimerWheel.TimerWheel>();
+            Mock<TimerWheel> mockedWheel = new Mock<TimerWheel>();
             TimerWheelTimerCore timer = new TimerWheelTimerCore(TimeSpan.FromMilliseconds(10), mockedWheel.Object);
             Task task = timer.StartTimerAsync();
             Assert.AreEqual(TaskStatus.WaitingForActivation, task.Status);

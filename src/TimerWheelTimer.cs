@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace TimerWheel
+namespace SimpleTimerWheel
 {
     public abstract class TimerWheelTimer
     {

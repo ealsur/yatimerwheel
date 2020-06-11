@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
+using SimpleTimerWheel;
 
 namespace TimerWheelPerformance
 {
@@ -17,26 +18,25 @@ namespace TimerWheelPerformance
             public Config()
             {
                 this.AddJob(Job.MediumRun.WithGcServer(true).WithGcForce(false).WithId("Server"));
-                this.AddJob(Job.MediumRun.WithGcServer(false).WithGcForce(true).WithId("Workstation"));
             }
         }
 
-        private readonly TimerWheel.TimerWheel mainWheel;
+        private readonly TimerWheel mainWheel;
         private readonly IReadOnlyList<int> timeouts;
         public TimerWheelBenchmark()
         {
             this.timeouts = TimerUtilities.GenerateTimeoutList(10000, 1000, 50);
-            this.mainWheel = TimerWheel.TimerWheel.CreateTimerWheel(50, 20);
+            this.mainWheel = TimerWheel.CreateTimerWheel(TimeSpan.FromMilliseconds(50), 20);
         }
 
         [Benchmark]
         public async Task TenK_WithTimerWheel()
         {
-            TimerWheel.TimerWheel wheel = TimerWheel.TimerWheel.CreateTimerWheel(50, 20);
+            TimerWheel wheel = TimerWheel.CreateTimerWheel(TimeSpan.FromMilliseconds(50), 20);
             List<Task> timers = new List<Task>(this.timeouts.Count);
             for (int i = 0; i < this.timeouts.Count; i++)
             {
-                TimerWheel.TimerWheelTimer timer = wheel.GetTimer(this.timeouts[i]);
+                SimpleTimerWheel.TimerWheelTimer timer = wheel.CreateTimer(TimeSpan.FromMilliseconds(this.timeouts[i]));
                 timers.Add(timer.StartTimerAsync());
             }
 
@@ -65,7 +65,7 @@ namespace TimerWheelPerformance
         [Benchmark]
         public async Task One_WithTimerWheel()
         {
-            TimerWheel.TimerWheelTimer timer = this.mainWheel.GetTimer(50);
+            TimerWheelTimer timer = this.mainWheel.CreateTimer(TimeSpan.FromMilliseconds(50));
             await timer.StartTimerAsync();
         }
 

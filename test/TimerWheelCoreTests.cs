@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using TimerWheel;
+using SimpleTimerWheel;
 
 namespace TimerWheelTests
 {
@@ -13,7 +13,7 @@ namespace TimerWheelTests
         [TestMethod]
         public void CreatesTimerWheel()
         {
-            Assert.IsNotNull(TimerWheel.TimerWheel.CreateTimerWheel(50, 1));
+            Assert.IsNotNull(TimerWheel.CreateTimerWheel(TimeSpan.FromMilliseconds(50), 1));
         }
 
         [DataTestMethod]
@@ -24,14 +24,14 @@ namespace TimerWheelTests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void InvalidConstructor(int resolutionInMs, int buckets)
         {
-            new TimerWheelCore(resolutionInMs, buckets);
+            new TimerWheelCore(TimeSpan.FromMilliseconds(resolutionInMs), buckets);
         }
 
         [TestMethod]
         public void CreatesTimer()
         {
-            TimerWheelCore wheel = new TimerWheelCore(30, 10);
-            TimerWheelTimer timer = wheel.GetTimer(90);
+            TimerWheelCore wheel = new TimerWheelCore(TimeSpan.FromMilliseconds(30), 10);
+            TimerWheelTimer timer = wheel.CreateTimer(TimeSpan.FromMilliseconds(90));
             Assert.IsNotNull(timer);
         }
 
@@ -44,21 +44,21 @@ namespace TimerWheelTests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void InvalidTimeout(int timeout)
         {
-            TimerWheelCore wheel = new TimerWheelCore(30, 10);
-            wheel.GetTimer(timeout);
+            TimerWheelCore wheel = new TimerWheelCore(TimeSpan.FromMilliseconds(30), 10);
+            wheel.CreateTimer(TimeSpan.FromMilliseconds(timeout));
         }
 
         [TestMethod]
         public void IndexMovesAsTimerPasses()
         {
-            TimerWheelCore wheel = new TimerWheelCore(30, 3, timer: null); // deactivate timer to fire manually
-            TimerWheelTimer timer = wheel.GetTimer(90);
+            TimerWheelCore wheel = new TimerWheelCore(TimeSpan.FromMilliseconds(30), 3, timer: null); // deactivate timer to fire manually
+            TimerWheelTimer timer = wheel.CreateTimer(TimeSpan.FromMilliseconds(90));
             Task timerTask = timer.StartTimerAsync();
             wheel.OnTimer(null);
             Assert.AreEqual(TaskStatus.WaitingForActivation, timerTask.Status);
             wheel.OnTimer(null);
             Assert.AreEqual(TaskStatus.WaitingForActivation, timerTask.Status);
-            TimerWheelTimer secondTimer = wheel.GetTimer(60);
+            TimerWheelTimer secondTimer = wheel.CreateTimer(TimeSpan.FromMilliseconds(60));
             Task secondTimerTask = secondTimer.StartTimerAsync();
             wheel.OnTimer(null);
             Assert.AreEqual(TaskStatus.RanToCompletion, timerTask.Status);
@@ -69,18 +69,18 @@ namespace TimerWheelTests
         [TestMethod]
         public void DisposedCannotCreateTimers()
         {
-            TimerWheelCore wheel = new TimerWheelCore(30, 3);
-            TimerWheelTimer timer = wheel.GetTimer(90);
+            TimerWheelCore wheel = new TimerWheelCore(TimeSpan.FromMilliseconds(30), 3);
+            TimerWheelTimer timer = wheel.CreateTimer(TimeSpan.FromMilliseconds(90));
             Assert.IsNotNull(timer);
             wheel.Dispose();
-            Assert.ThrowsException<ObjectDisposedException>(() => wheel.GetTimer(90));
+            Assert.ThrowsException<ObjectDisposedException>(() => wheel.CreateTimer(TimeSpan.FromMilliseconds(90)));
         }
 
         [TestMethod]
         public void DisposedCannotStartTimers()
         {
-            TimerWheelCore wheel = new TimerWheelCore(30, 3);
-            TimerWheelTimer timer = wheel.GetTimer(90);
+            TimerWheelCore wheel = new TimerWheelCore(TimeSpan.FromMilliseconds(30), 3);
+            TimerWheelTimer timer = wheel.CreateTimer(TimeSpan.FromMilliseconds(90));
             Assert.IsNotNull(timer);
             wheel.Dispose();
             Assert.ThrowsException<ObjectDisposedException>(() => timer.StartTimerAsync());
@@ -89,8 +89,8 @@ namespace TimerWheelTests
         [TestMethod]
         public void DisposeCancelsTimers()
         {
-            TimerWheelCore wheel = new TimerWheelCore(30, 3);
-            TimerWheelTimer timer = wheel.GetTimer(90);
+            TimerWheelCore wheel = new TimerWheelCore(TimeSpan.FromMilliseconds(30), 3);
+            TimerWheelTimer timer = wheel.CreateTimer(TimeSpan.FromMilliseconds(90));
             Task timerTask = timer.StartTimerAsync();
             wheel.Dispose();
             Assert.AreEqual(TaskStatus.Canceled, timerTask.Status);
@@ -102,8 +102,8 @@ namespace TimerWheelTests
         {
             const int timerTimeout = 200;
             const int resolution = 50;
-            TimerWheelCore wheel = new TimerWheelCore(resolution, 10); // 10 buckets of 50 ms go up to 500ms
-            TimerWheelTimer timer = wheel.GetTimer(timerTimeout);
+            TimerWheelCore wheel = new TimerWheelCore(TimeSpan.FromMilliseconds(resolution), 10); // 10 buckets of 50 ms go up to 500ms
+            TimerWheelTimer timer = wheel.CreateTimer(TimeSpan.FromMilliseconds(timerTimeout));
             Stopwatch stopwatch = Stopwatch.StartNew();
             await timer.StartTimerAsync();
             stopwatch.Stop();
@@ -116,9 +116,9 @@ namespace TimerWheelTests
         {
             const int timerTimeout = 200;
             const int resolution = 50;
-            TimerWheelCore wheel = new TimerWheelCore(resolution, 10); // 10 buckets of 50 ms go up to 500ms
-            TimerWheelTimer timer = wheel.GetTimer(timerTimeout);
-            TimerWheelTimer timer2 = wheel.GetTimer(timerTimeout);
+            TimerWheelCore wheel = new TimerWheelCore(TimeSpan.FromMilliseconds(resolution), 10); // 10 buckets of 50 ms go up to 500ms
+            TimerWheelTimer timer = wheel.CreateTimer(TimeSpan.FromMilliseconds(timerTimeout));
+            TimerWheelTimer timer2 = wheel.CreateTimer(TimeSpan.FromMilliseconds(timerTimeout));
             Stopwatch stopwatch = Stopwatch.StartNew();
             await Task.WhenAll(timer.StartTimerAsync(), timer2.StartTimerAsync());
             stopwatch.Stop();
@@ -132,12 +132,12 @@ namespace TimerWheelTests
             const int timerTimeout = 100;
             const int buckets = 20;
             const int resolution = 50;
-            TimerWheelCore wheel = new TimerWheelCore(resolution, buckets); // 20 buckets of 50 ms go up to 1000ms
+            TimerWheelCore wheel = new TimerWheelCore(TimeSpan.FromMilliseconds(resolution), buckets); // 20 buckets of 50 ms go up to 1000ms
             List<Task<(int, long)>> tasks = new List<Task<(int, long)>>();
             for (int i = 0; i < 10; i++)
             {
                 int estimatedTimeout = (i + 1) * timerTimeout;
-                TimerWheelTimer timer = wheel.GetTimer(estimatedTimeout);
+                TimerWheelTimer timer = wheel.CreateTimer(TimeSpan.FromMilliseconds(estimatedTimeout));
                 tasks.Add(Task.Run(async () => {
                     Stopwatch stopwatch = Stopwatch.StartNew();
                     await timer.StartTimerAsync();
